@@ -1,0 +1,54 @@
+server:
+  # 应用服务 WEB 访问端口
+  port: 8080
+
+spring:
+  # 数据源配置
+  datasource:
+    url: jdbc:mysql://113.45.22.27:3306/user_center?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: ljp@19970226
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  # redis 配置
+  redis:
+    host: 113.45.22.27 # Redis服务器地址
+    port: 6379 # Redis服务器端口
+    database: 0 # Redis数据库索引
+    timeout: 1000 # Redis连接超时时间（毫秒）
+    password: ljp@19970226 # Redis密码
+    lettuce:
+      # 连接池设置
+      pool:
+        max-active: 10 # Lettuce连接池最大活跃连接数
+        max-idle: 5 # Lettuce连接池最大空闲连接数
+        min-idle: 1 # Lettuce连接池最小空闲连接数
+
+mybatis:
+  mapper-locations: classpath:mapper/*.xml # Mapper XML文件位置
+  type-aliases-package: com.luren.usercenterapi.mode # 实体类包名
+  configuration:
+    map-underscore-to-camel-case: true # 驼峰命名法
+
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml # 指定 Mapper XML 文件的位置
+  type-aliases-package: com.luren.usercenterapi.mode # 配置实体类别名包，可使用别名简化实体类引用
+  configuration:
+    map-underscore-to-camel-case: true # 开启驼峰命名自动映射，将数据库下划线命名映射到实体类驼峰命名
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl # 日志实现，这里使用标准日志输出 SQL 语句
+  global-config:
+    db-config:
+      id-type: auto # 主键类型，AUTO 表示数据库自增
+      logic-delete-field: is_delete # 逻辑删除字段名，这里指定为 is_delete
+      logic-delete-value: 1 # 逻辑删除值
+      logic-not-delete-value: 0 # 逻辑未删除值
+
+# 日志
+#logging:
+#  level:
+#    com.lijianpan.uauth.mapper: DEBUG # Mapper日志级别设为DEBUG，方便查看 SQL 执行情况
+
+# JWT配置
+jwt:
+  secret: q0AlNkaOPqw0jdndvo3CEgR7SUDM3OQlR2XntCBcBcWQmdqJnsTms+u/H767C2kt # 密钥
+  expiration: 86400 # 访问令牌过期时间（秒）
+  refresh-expiration: 604800 # 刷新令牌过期时间（秒）
