@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luren.usercenterapi.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="com.luren.usercenterapi.mode.User">
+            <id property="id" column="id" />
+            <result property="username" column="username" />
+            <result property="password" column="password" />
+            <result property="nickname" column="nickname" />
+            <result property="avatarUrl" column="avatar_url" />
+            <result property="email" column="email" />
+            <result property="phone" column="phone" />
+            <result property="status" column="status" />
+            <result property="createdDate" column="created_date" />
+            <result property="updatedDate" column="updated_date" />
+            <result property="isDelete" column="is_delete" />
+            <result property="lastLoginTime" column="last_login_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,username,password,nickname,avatar_url,email,
+        phone,status,created_date,updated_date,is_delete,
+        last_login_time
+    </sql>
+</mapper>

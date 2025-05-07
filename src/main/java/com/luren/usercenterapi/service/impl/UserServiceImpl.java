@@ -2,6 +2,7 @@ package com.luren.usercenterapi.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.luren.usercenterapi.common.BaseResponse;
 import com.luren.usercenterapi.mapper.UserMapper;
 import com.luren.usercenterapi.mode.User;
 import com.luren.usercenterapi.mode.dto.LoginRequest;
@@ -9,7 +10,7 @@ import com.luren.usercenterapi.mode.dto.LoginResponse;
 import com.luren.usercenterapi.service.UserService;
 import com.luren.usercenterapi.util.JwtUtil;
 import com.luren.usercenterapi.util.MD5Utils;
-import com.luren.usercenterapi.util.Result;
+import com.luren.usercenterapi.util.ResultUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -32,7 +33,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     private RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    public Result<LoginResponse> login(LoginRequest loginRequest) {
+    public BaseResponse<LoginResponse> login(LoginRequest loginRequest) {
         // 验证用户是否存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", loginRequest.getUsername());
@@ -40,16 +41,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         User user = this.getOne(queryWrapper);
 
         if(user==null){
-            return Result.error("用户名不存在");
+            return ResultUtils.error("用户名不存在");
         }
 
         if (user.getStatus() == 1) {
-            return Result.error("账号已被禁用");
+            return ResultUtils.error("账号已被禁用");
         }
         
         // 验证密码
         if (!MD5Utils.md5Salt(loginRequest.getPassword()).equals(user.getPassword())) {
-            return Result.error("密码错误");
+            return ResultUtils.error("密码错误");
         }
         
         // 3. 生成Token
@@ -76,15 +77,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         List<String> roles = getUserRoles(user.getId()).getData();
         loginResponse.setRoles(roles);
         
-        return Result.success("登录成功", loginResponse);
+        return ResultUtils.ok("登录成功", loginResponse);
     }
 
     @Override
-    public Result<User> register(User user) {
+    public BaseResponse<User> register(User user) {
         boolean result = StringUtils.isAllEmpty(user.getUsername(),user.getPassword(),user.getCheckPassword());
 
         if(result){
-            return Result.error("请输入完整的信息");
+            return ResultUtils.error("请输入完整的信息");
         }
 
         // 1. 检查用户名是否已存在
@@ -92,7 +93,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         queryWrapper.eq("username", user.getUsername());
         User ExistUser = this.getOne(queryWrapper);
         if(ExistUser!=null){
-            return Result.error("用户名已存在");
+            return ResultUtils.error("用户名已存在");
         }
 
         // 2. 设置用户信息
@@ -104,27 +105,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         
         // 4. 返回结果，不返回密码
         user.setPassword(null);
-        return Result.success("注册成功", user);
+        return ResultUtils.ok("注册成功", user);
     }
 
     @Override
-    public Result<LoginResponse> refreshToken(String refreshToken) {
+    public BaseResponse<LoginResponse> refreshToken(String refreshToken) {
         // 1. 验证刷新Token是否有效
         if (jwtUtil.isTokenExpired(refreshToken)) {
-            return Result.error("刷新Token已过期");
+            return ResultUtils.error("刷新Token已过期");
         }
         
         // 2. 从Redis中获取用户ID
         Long userId = (Long) redisTemplate.opsForValue().get("refreshToken:" + refreshToken);
         if (userId == null) {
-            return Result.error("刷新Token无效");
+            return ResultUtils.error("刷新Token无效");
         }
         
         // 3. 获取用户信息
         User user = this.getById(userId);
         
         if (user == null) {
-            return Result.error("用户不存在");
+            return ResultUtils.error("用户不存在");
         }
         
         // 4. 生成新的Token
@@ -151,23 +152,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         List<String> roles = getUserRoles(user.getId()).getData();
         loginResponse.setRoles(roles);
         
-        return Result.success("刷新Token成功", loginResponse);
+        return ResultUtils.ok("刷新Token成功", loginResponse);
     }
 
     @Override
-    public Result<?> logout(String token) {
+    public BaseResponse<?> logout(String token) {
         // 1. 从Redis中删除Token
         redisTemplate.delete("token:" + token);
-        return Result.success("退出登录成功");
+        return ResultUtils.ok("退出登录成功");
     }
 
     @Override
-    public Result<User> getUserById(Long id) {
+    public BaseResponse<User> getUserById(Long id) {
         // 查找用户
         User user = this.getById(id);
         
         if (user == null) {
-            return Result.error("用户不存在");
+            return ResultUtils.error("用户不存在");
         }
         
         // 不返回密码
@@ -182,11 +183,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         result.setUpdatedDate(user.getUpdatedDate());
         result.setLastLoginTime(user.getLastLoginTime());
         
-        return Result.success(result);
+        return ResultUtils.ok(result);
     }
 
     @Override
-    public Result<User> getUserByUsername(String username) {
+    public BaseResponse<User> getUserByUsername(String username) {
         // 查找用户
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", username);
@@ -194,7 +195,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         User user = this.getOne(queryWrapper);
         
         if (user == null) {
-            return Result.error("用户不存在");
+            return ResultUtils.error("用户不存在");
         }
         
         // 不返回密码
@@ -209,11 +210,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         result.setUpdatedDate(user.getUpdatedDate());
         result.setLastLoginTime(user.getLastLoginTime());
         
-        return Result.success(result);
+        return ResultUtils.ok(result);
     }
 
     @Override
-    public Result<List<String>> getUserRoles(Long userId) {
+    public BaseResponse<List<String>> getUserRoles(Long userId) {
         // 模拟获取用户角色
         List<String> roles = new ArrayList<>();
         if (userId == 1L) {
@@ -221,27 +222,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         } else {
             roles.add("ROLE_USER");
         }
-        return Result.success(roles);
+        return ResultUtils.ok(roles);
     }
 
     @Override
-    public Result<?> updatePassword(Long userId, String oldPassword, String newPassword) {
+    public BaseResponse<?> updatePassword(Long userId, String oldPassword, String newPassword) {
         // 查找用户
         User user = this.getById(userId);
         
         if (user == null) {
-            return Result.error("用户不存在");
+            return ResultUtils.error("用户不存在");
         }
         
         // 验证旧密码
         if (!MD5Utils.md5Salt(oldPassword).equals(user.getPassword())) {
-            return Result.error("旧密码错误");
+            return ResultUtils.error("旧密码错误");
         }
         
         // 更新密码
         user.setPassword(MD5Utils.md5Salt(newPassword));
         user.setUpdatedDate(new Date());
         
-        return Result.success("密码修改成功");
+        return ResultUtils.ok("密码修改成功");
     }
 } 
