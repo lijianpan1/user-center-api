@@ -66,7 +66,7 @@ public class SsoServiceImpl implements SsoService {
     }
     
     @Override
-    public String createToken(Long userId, HttpServletResponse response) {
+    public String createToken(Integer userId, HttpServletResponse response) {
         // 生成SSO Token
         String token = UUID.randomUUID().toString();
         

@@ -3,11 +3,20 @@ package com.luren.usercenterapi.exception;
 import com.luren.usercenterapi.common.ErrorCode;
 import lombok.Data;
 
+/**
+ * 自定义异常
+ *
+ * @author lijianpan
+ **/
 @Data
 public class CustomException extends RuntimeException {
 
     private int code;
-    private String message;
+    /**
+     * 描述
+     */
+    private String description;
+
 
     public CustomException(String message) {
         super(message);
@@ -20,12 +29,12 @@ public class CustomException extends RuntimeException {
     public CustomException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.code = errorCode.getCode();
-        this.message = errorCode.getMessage();
+        this.description = errorCode.getDescription();
     }
 
-    public CustomException(ErrorCode errorCode, String message) {
-        super(message);
+    public CustomException(ErrorCode errorCode, String description) {
+        super(errorCode.getMessage());
         this.code = errorCode.getCode();
-        this.message = message;
+        this.description = description;
     }
 }

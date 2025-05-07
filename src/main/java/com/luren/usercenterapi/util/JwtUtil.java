@@ -45,7 +45,7 @@ public class JwtUtil {
     /**
      * 生成token
      */
-    public String generateToken(String username, Long userId) {
+    public String generateToken(String username, int userId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("username", username);
@@ -55,7 +55,7 @@ public class JwtUtil {
     /**
      * 生成刷新token
      */
-    public String generateRefreshToken(String username, Long userId) {
+    public String generateRefreshToken(String username, int userId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("username", username);
@@ -80,11 +80,11 @@ public class JwtUtil {
     /**
      * 从token中获取用户ID
      */
-    public Long getUserIdFromToken(String token) {
-        Long userId;
+    public Integer getUserIdFromToken(String token) {
+        Integer userId;
         try {
             Claims claims = getClaimsFromToken(token);
-            userId = ((Integer) claims.get("userId")).longValue();
+            userId = (Integer) claims.get("userId");
         } catch (Exception e) {
             userId = null;
         }

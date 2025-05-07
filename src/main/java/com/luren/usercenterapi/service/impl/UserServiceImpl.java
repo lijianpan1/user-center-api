@@ -3,6 +3,8 @@ package com.luren.usercenterapi.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.luren.usercenterapi.common.BaseResponse;
+import com.luren.usercenterapi.common.ErrorCode;
+import com.luren.usercenterapi.exception.CustomException;
 import com.luren.usercenterapi.mapper.UserMapper;
 import com.luren.usercenterapi.mode.User;
 import com.luren.usercenterapi.mode.dto.LoginRequest;
@@ -163,7 +165,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     }
 
     @Override
-    public BaseResponse<User> getUserById(Long id) {
+    public BaseResponse<User> getUserById(int id) {
         // 查找用户
         User user = this.getById(id);
         
@@ -195,7 +197,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         User user = this.getOne(queryWrapper);
         
         if (user == null) {
-            return ResultUtils.error("用户不存在");
+            throw new CustomException(ErrorCode.USER_NOT_EXIST);
         }
         
         // 不返回密码
@@ -214,7 +216,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     }
 
     @Override
-    public BaseResponse<List<String>> getUserRoles(Long userId) {
+    public BaseResponse<List<String>> getUserRoles(int userId) {
         // 模拟获取用户角色
         List<String> roles = new ArrayList<>();
         if (userId == 1L) {
@@ -226,7 +228,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     }
 
     @Override
-    public BaseResponse<?> updatePassword(Long userId, String oldPassword, String newPassword) {
+    public BaseResponse<?> updatePassword(int userId, String oldPassword, String newPassword) {
         // 查找用户
         User user = this.getById(userId);
         

@@ -33,7 +33,11 @@ public class ResultUtils {
         return new BaseResponse<>(500, message, null);
     }
 
-    public static <T> BaseResponse<T> error(int code,String message) {
-        return new BaseResponse<>(code,message,null,null);
+    public static <T> BaseResponse<T> error(int code,String message,String description) {
+        return new BaseResponse<>(code,message,null,description);
+    }
+
+    public static <T> BaseResponse<T> error(ErrorCode errorCode,String description) {
+        return new BaseResponse<>(errorCode,description);
     }
 } 

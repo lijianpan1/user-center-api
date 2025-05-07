@@ -30,7 +30,7 @@ public interface SsoService {
      * @param response HTTP响应
      * @return SSO Token
      */
-    String createToken(Long userId, HttpServletResponse response);
+    String createToken(Integer userId, HttpServletResponse response);
     
     /**
      * 处理SSO登出请求

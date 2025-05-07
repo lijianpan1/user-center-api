@@ -3,6 +3,7 @@ package com.luren.usercenterapi.aspect;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
+import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ public class LoggingAspect {
         for (int i = 0; i < args.length; i++) {
             args[i] = maskSensitiveData(args[i]); // 调用统一的敏感信息过滤方法
         }
+        log.info("==========-------before--------===============sss");
         log.info("Entering method: {}.{} with arguments: {}",
                 joinPoint.getTarget().getClass().getSimpleName(), 
                 joinPoint.getSignature().getName(), 
@@ -37,10 +39,23 @@ public class LoggingAspect {
         } else {
             resultString = String.valueOf(result);
         }
+        log.info("==========--------after-------===============sss");
         log.info("Exiting method: {}.{} with result: {}",
                 joinPoint.getTarget().getClass().getSimpleName(), 
                 joinPoint.getSignature().getName(), 
                 resultString);
+    }
+
+    @AfterThrowing(pointcut = "execution(* com.luren.usercenterapi.service.*.*(..))", throwing = "ex")
+    public void handleException(JoinPoint joinPoint, Exception ex) {
+        // 记录异常日志，包括堆栈跟踪
+        log.error("Exception occurred in {}.{}: {}",
+                joinPoint.getTarget().getClass().getSimpleName(),
+                joinPoint.getSignature().getName(),
+                ex.getMessage(), ex);
+
+        // 可以在此处添加更多处理逻辑，例如返回标准化错误响应
+        // 注意：此处仅为日志记录，实际响应需结合全局异常处理器实现
     }
 
     // 统一的敏感信息过滤方法

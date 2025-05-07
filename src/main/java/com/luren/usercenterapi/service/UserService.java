@@ -47,7 +47,7 @@ public interface UserService extends IService<User> {
      * @param id 用户ID
      * @return 用户信息
      */
-    BaseResponse<User> getUserById(Long id);
+    BaseResponse<User> getUserById(int id);
     
     /**
      * 根据用户名获取用户信息
@@ -61,7 +61,7 @@ public interface UserService extends IService<User> {
      * @param userId 用户ID
      * @return 角色代码列表
      */
-    BaseResponse<List<String>> getUserRoles(Long userId);
+    BaseResponse<List<String>> getUserRoles(int userId);
     
     /**
      * 修改密码
@@ -70,5 +70,5 @@ public interface UserService extends IService<User> {
      * @param newPassword 新密码
      * @return 修改结果
      */
-    BaseResponse<?> updatePassword(Long userId, String oldPassword, String newPassword);
+    BaseResponse<?> updatePassword(int userId, String oldPassword, String newPassword);
 } 

@@ -13,14 +13,14 @@ import java.util.stream.Collectors;
  */
 public class JwtUserDetails implements UserDetails {
 
-    private Long id;
+    private int id;
     private String username;
     private String password;
     private String realName;
     private Integer status;
     private List<String> roles;
     
-    public JwtUserDetails(Long id, String username, String password, String realName, Integer status, List<String> roles) {
+    public JwtUserDetails(int id, String username, String password, String realName, Integer status, List<String> roles) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -69,7 +69,7 @@ public class JwtUserDetails implements UserDetails {
         return status == 1;
     }
     
-    public Long getId() {
+    public int getId() {
         return id;
     }
     
