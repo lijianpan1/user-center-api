@@ -13,7 +13,7 @@ public class RolePermission implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
-    private int id;
-    private int roleId;
-    private int permissionId;
+    private Integer id;
+    private Integer roleId;
+    private Integer permissionId;
 } 

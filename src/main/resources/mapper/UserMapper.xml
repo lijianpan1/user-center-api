@@ -24,4 +24,8 @@
         phone,status,created_date,updated_date,is_delete,
         last_login_time
     </sql>
+
+    <update id="restoreDeletedData" parameterType="Integer">
+        update user set is_delete = 0 where id = #{userId};
+    </update>
 </mapper>

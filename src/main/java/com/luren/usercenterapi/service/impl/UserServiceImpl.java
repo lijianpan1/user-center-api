@@ -34,6 +34,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
+
+
     @Override
     public BaseResponse<LoginResponse> login(LoginRequest loginRequest) {
         // 验证用户是否存在
@@ -165,7 +167,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     }
 
     @Override
-    public BaseResponse<User> getUserById(int id) {
+    public BaseResponse<User> getUserById(Integer id) {
         // 查找用户
         User user = this.getById(id);
         
@@ -216,7 +218,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     }
 
     @Override
-    public BaseResponse<List<String>> getUserRoles(int userId) {
+    public BaseResponse<List<String>> getUserRoles(Integer userId) {
         // 模拟获取用户角色
         List<String> roles = new ArrayList<>();
         if (userId == 1L) {
@@ -228,7 +230,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     }
 
     @Override
-    public BaseResponse<?> updatePassword(int userId, String oldPassword, String newPassword) {
+    public BaseResponse<String> updatePassword(Integer userId, String oldPassword, String newPassword) {
         // 查找用户
         User user = this.getById(userId);
         
@@ -246,5 +248,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         user.setUpdatedDate(new Date());
         
         return ResultUtils.ok("密码修改成功");
+    }
+
+    @Override
+    public BaseResponse<String> restoreDeletedData(Integer id) {
+        int count = this.baseMapper.restoreDeletedData(id);
+        if (count==0){
+            return ResultUtils.error("恢复数据失败");
+        }
+        return ResultUtils.ok("恢复数据成功");
     }
 } 

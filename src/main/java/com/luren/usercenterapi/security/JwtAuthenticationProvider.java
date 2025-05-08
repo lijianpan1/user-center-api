@@ -1,5 +1,6 @@
 package com.luren.usercenterapi.security;
 
+import com.luren.usercenterapi.util.MD5Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -28,7 +29,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         
         JwtUserDetails userDetails = userDetailsService.loadUserByUsername(username);
         
-        if (passwordEncoder.matches(password, userDetails.getPassword())) {
+        if (MD5Utils.md5Salt(password).equals(userDetails.getPassword())) {
             return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         } else {
             throw new BadCredentialsException("密码错误");

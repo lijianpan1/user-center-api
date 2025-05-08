@@ -20,14 +20,14 @@ public interface UserService extends IService<User> {
      * @return 登录结果
      */
     BaseResponse<LoginResponse> login(LoginRequest loginRequest);
-    
+
     /**
      * 用户注册
      * @param user 用户信息
      * @return 注册结果
      */
     BaseResponse<User> register(User user);
-    
+
     /**
      * 刷新Token
      * @param refreshToken 刷新Token
@@ -41,28 +41,28 @@ public interface UserService extends IService<User> {
      * @return 退出结果
      */
     BaseResponse<?> logout(String token);
-    
+
     /**
      * 根据用户ID获取用户信息
      * @param id 用户ID
      * @return 用户信息
      */
-    BaseResponse<User> getUserById(int id);
-    
+    BaseResponse<User> getUserById(Integer id);
+
     /**
      * 根据用户名获取用户信息
      * @param username 用户名
      * @return 用户信息
      */
     BaseResponse<User> getUserByUsername(String username);
-    
+
     /**
      * 获取用户角色
      * @param userId 用户ID
      * @return 角色代码列表
      */
-    BaseResponse<List<String>> getUserRoles(int userId);
-    
+    BaseResponse<List<String>> getUserRoles(Integer userId);
+
     /**
      * 修改密码
      * @param userId 用户ID
@@ -70,5 +70,12 @@ public interface UserService extends IService<User> {
      * @param newPassword 新密码
      * @return 修改结果
      */
-    BaseResponse<?> updatePassword(int userId, String oldPassword, String newPassword);
+    BaseResponse<String> updatePassword(Integer userId, String oldPassword, String newPassword);
+
+    /**
+     * 恢复逻辑删除的数据
+     * @param:
+     * @author: lijianpan
+     **/
+    BaseResponse<String> restoreDeletedData(Integer id);
 } 

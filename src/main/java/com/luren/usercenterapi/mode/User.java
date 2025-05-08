@@ -7,9 +7,10 @@ import java.util.Date;
 import lombok.Data;
 
 /**
- * 
- * @TableName user
- */
+ * 用户实体类
+ *
+ * @author lijianpan
+ **/
 @TableName(value ="user")
 @Data
 public class User {
@@ -17,7 +18,7 @@ public class User {
      * 用户唯一标识
      */
     @TableId(type = IdType.AUTO)
-    private int id;
+    private Integer id;
 
     /**
      * 用户名

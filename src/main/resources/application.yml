@@ -10,7 +10,7 @@ spring:
   datasource:
     url: jdbc:mysql://113.45.22.27:3306/user_center?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
     username: root
-    password: xxxxx
+    password: ljp@19970226
     driver-class-name: com.mysql.cj.jdbc.Driver
   # redis 配置
   redis:
@@ -18,7 +18,7 @@ spring:
     port: 6379 # Redis服务器端口
     database: 0 # Redis数据库索引
     timeout: 1000 # Redis连接超时时间（毫秒）
-    password: xxxxxx # Redis密码
+    password: ljp@19970226 # Redis密码
     lettuce:
       # 连接池设置
       pool:

@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String authToken = authHeader.substring(7);
             
             // 验证Token是否在Redis中存在
-            Long userId = (Long) redisTemplate.opsForValue().get("token:" + authToken);
+            Integer userId = (Integer) redisTemplate.opsForValue().get("token:" + authToken);
             if (userId != null && !jwtUtil.isTokenExpired(authToken)) {
                 String username = jwtUtil.getUsernameFromToken(authToken);
                 

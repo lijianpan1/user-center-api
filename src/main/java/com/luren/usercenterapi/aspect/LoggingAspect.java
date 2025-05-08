@@ -1,5 +1,6 @@
 package com.luren.usercenterapi.aspect;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -23,9 +24,9 @@ public class LoggingAspect {
         for (int i = 0; i < args.length; i++) {
             args[i] = maskSensitiveData(args[i]); // 调用统一的敏感信息过滤方法
         }
-        log.info("==========-------before--------===============sss");
+        log.info("method before");
         log.info("Entering method: {}.{} with arguments: {}",
-                joinPoint.getTarget().getClass().getSimpleName(), 
+                joinPoint.getTarget().getClass().getName(),
                 joinPoint.getSignature().getName(), 
                 Arrays.toString(args)); // 使用Arrays.toString()处理数组类型的数据
     }
@@ -39,10 +40,10 @@ public class LoggingAspect {
         } else {
             resultString = String.valueOf(result);
         }
-        log.info("==========--------after-------===============sss");
+        log.info("method after");
         log.info("Exiting method: {}.{} with result: {}",
-                joinPoint.getTarget().getClass().getSimpleName(), 
-                joinPoint.getSignature().getName(), 
+                joinPoint.getTarget().getClass().getName(),
+                joinPoint.getSignature().getName(),
                 resultString);
     }
 
@@ -50,7 +51,7 @@ public class LoggingAspect {
     public void handleException(JoinPoint joinPoint, Exception ex) {
         // 记录异常日志，包括堆栈跟踪
         log.error("Exception occurred in {}.{}: {}",
-                joinPoint.getTarget().getClass().getSimpleName(),
+                joinPoint.getTarget().getClass().getName(),
                 joinPoint.getSignature().getName(),
                 ex.getMessage(), ex);
 
@@ -93,6 +94,9 @@ public class LoggingAspect {
                 maskedCollection.add(maskSensitiveData(item));
             }
             return maskedCollection;
+        }else if(data instanceof QueryWrapper) {
+            QueryWrapper<?> queryWrapper = (QueryWrapper<?>) data;
+            return queryWrapper.getSqlSegment();
         }
         // 可以继续添加其他类型的处理逻辑
         return data;

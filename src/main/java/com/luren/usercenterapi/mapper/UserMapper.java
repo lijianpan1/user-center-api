@@ -2,7 +2,6 @@ package com.luren.usercenterapi.mapper;
 
 import com.luren.usercenterapi.mode.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import org.apache.ibatis.annotations.Mapper;
 
 /**
 * @author lijianpan
@@ -10,6 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
 * @createDate 2025-04-26 22:09:58
 */
 public interface UserMapper extends BaseMapper<User> {
+    int restoreDeletedData(Integer userId);
 }
 
 
