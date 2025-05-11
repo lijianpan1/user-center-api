@@ -9,6 +9,8 @@ import java.io.Serializable;
 
 /**
  * 统一返回结果
+ *
+ * @author lijianpan
  */
 @Data
 public class ResultUtils {
@@ -39,5 +41,9 @@ public class ResultUtils {
 
     public static <T> BaseResponse<T> error(ErrorCode errorCode,String description) {
         return new BaseResponse<>(errorCode,description);
+    }
+
+    public static <T> BaseResponse<T> error(ErrorCode errorCode) {
+        return new BaseResponse<>(errorCode);
     }
 } 

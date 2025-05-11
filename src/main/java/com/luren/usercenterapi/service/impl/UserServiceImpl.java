@@ -11,11 +11,11 @@ import com.luren.usercenterapi.mode.dto.LoginRequest;
 import com.luren.usercenterapi.mode.dto.LoginResponse;
 import com.luren.usercenterapi.service.UserService;
 import com.luren.usercenterapi.util.JwtUtil;
-import com.luren.usercenterapi.util.MD5Utils;
 import com.luren.usercenterapi.util.ResultUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,16 +25,21 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 用户服务实现类
+ *
+ *
+ * @author lijianpan
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements UserService {
+
     @Autowired
     private JwtUtil jwtUtil;
-    
+
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public BaseResponse<LoginResponse> login(LoginRequest loginRequest) {
@@ -53,7 +58,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         }
         
         // 验证密码
-        if (!MD5Utils.md5Salt(loginRequest.getPassword()).equals(user.getPassword())) {
+        if (passwordEncoder.matches(loginRequest.getPassword(),user.getPassword())) {
             return ResultUtils.error("密码错误");
         }
         
@@ -101,7 +106,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         }
 
         // 2. 设置用户信息
-        user.setPassword(MD5Utils.md5Salt(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setStatus(1);
         
         // 3. 保存用户
@@ -239,12 +244,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         }
         
         // 验证旧密码
-        if (!MD5Utils.md5Salt(oldPassword).equals(user.getPassword())) {
+        if (passwordEncoder.matches(oldPassword,user.getPassword())) {
             return ResultUtils.error("旧密码错误");
         }
         
         // 更新密码
-        user.setPassword(MD5Utils.md5Salt(newPassword));
+        user.setPassword(passwordEncoder.encode(newPassword));
         user.setUpdatedDate(new Date());
         
         return ResultUtils.ok("密码修改成功");

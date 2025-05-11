@@ -1,6 +1,5 @@
 package com.luren.usercenterapi.security;
 
-import com.luren.usercenterapi.util.MD5Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -12,15 +11,18 @@ import org.springframework.stereotype.Component;
 
 /**
  * JWT认证提供者
+ *
+ * @author lijianpan
  */
 @Component
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
     @Autowired
     private JwtUserDetailsService userDetailsService;
-    
+
     @Autowired
     private PasswordEncoder passwordEncoder;
+
     
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -29,7 +31,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         
         JwtUserDetails userDetails = userDetailsService.loadUserByUsername(username);
         
-        if (MD5Utils.md5Salt(password).equals(userDetails.getPassword())) {
+        if (passwordEncoder.matches(password, userDetails.getPassword())) {
             return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         } else {
             throw new BadCredentialsException("密码错误");
