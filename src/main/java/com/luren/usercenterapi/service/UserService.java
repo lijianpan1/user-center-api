@@ -11,6 +11,8 @@ import java.util.List;
 
 /**
  * 用户服务接口
+ *
+ * @author lijianpan
  */
 public interface UserService extends IService<User> {
     
@@ -74,8 +76,8 @@ public interface UserService extends IService<User> {
 
     /**
      * 恢复逻辑删除的数据
-     * @param:
-     * @author: lijianpan
+     * @param userId 用户ID
+     * @return 用户信息
      **/
-    BaseResponse<String> restoreDeletedData(Integer id);
+    BaseResponse<String> restoreDeletedData(Integer userId);
 } 
