@@ -30,7 +30,7 @@ public class UserController {
     @GetMapping("/info")
     public BaseResponse<User> getCurrentUser(@RequestHeader("Authorization") String authorization) {
         String token = authorization.substring(7);
-        int userId = jwtUtil.getUserIdFromToken(token);
+        Integer userId = jwtUtil.getUserIdFromToken(token);
         return userService.getUserById(userId);
     }
     
@@ -64,13 +64,5 @@ public class UserController {
     public BaseResponse<List<User>> getUserList() {
         // 这里简化处理，实际应该从数据库查询
         return ResultUtils.error("功能未实现");
-    }
-
-    /**
-     * 获取用户列表（需要管理员权限）
-     */
-    @GetMapping("/userByUsername")
-    public BaseResponse<User> getUserByUsername() {
-        return userService.getUserByUsername("luren");
     }
 } 

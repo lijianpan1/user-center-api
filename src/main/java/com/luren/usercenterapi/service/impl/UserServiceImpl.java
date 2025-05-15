@@ -11,6 +11,7 @@ import com.luren.usercenterapi.mode.dto.LoginRequest;
 import com.luren.usercenterapi.mode.dto.LoginResponse;
 import com.luren.usercenterapi.service.UserService;
 import com.luren.usercenterapi.util.JwtUtil;
+import com.luren.usercenterapi.util.RedisUtils;
 import com.luren.usercenterapi.util.ResultUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private RedisUtils redisUtils;
+
     @Override
     public BaseResponse<LoginResponse> login(LoginRequest loginRequest) {
         // 验证用户是否存在
@@ -50,16 +54,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         User user = this.getOne(queryWrapper);
 
         if(user==null){
-            return ResultUtils.error("用户名不存在");
+            throw new CustomException(ErrorCode.USER_NOT_EXIST);
         }
 
         if (user.getStatus() == 1) {
-            return ResultUtils.error("账号已被禁用");
+            throw new CustomException(ErrorCode.ACCOUNT_HAS_BEEN_DISABLED);
         }
         
         // 验证密码
         if (passwordEncoder.matches(loginRequest.getPassword(),user.getPassword())) {
-            return ResultUtils.error("密码错误");
+            throw new CustomException(ErrorCode.USER_PASSWORD_ERROR);
         }
         
         // 3. 生成Token
@@ -69,22 +73,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         // 4. 更新用户最后登录时间
         user.setLastLoginTime(new Date());
         
-        // 5. 将Token存入Redis，设置过期时间
-        redisTemplate.opsForValue().set("token:" + token, user.getId(), 24, TimeUnit.HOURS);
-        redisTemplate.opsForValue().set("refreshToken:" + refreshToken, user.getId(), 7, TimeUnit.DAYS);
+        // 5. 将Token存入Redis
+        redisUtils.setToken(token, user.getId());
+        redisUtils.setRefreshToken(refreshToken, user.getId());
         
         // 6. 构建登录响应
-        LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setToken(token);
-        loginResponse.setRefreshToken(refreshToken);
-        loginResponse.setExpireTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000); // 24小时
-        loginResponse.setUserId(user.getId());
-        loginResponse.setUsername(user.getUsername());
-        loginResponse.setNickName(user.getNickname());
-        
-        // 获取用户角色
-        List<String> roles = getUserRoles(user.getId()).getData();
-        loginResponse.setRoles(roles);
+        LoginResponse loginResponse = encapsulateLoginResponse(user,token,refreshToken);
         
         return ResultUtils.ok("登录成功", loginResponse);
     }
@@ -94,7 +88,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         boolean result = StringUtils.isAllEmpty(user.getUsername(),user.getPassword(),user.getCheckPassword());
 
         if(result){
-            return ResultUtils.error("请输入完整的信息");
+            throw new CustomException(ErrorCode.PARAMS_ERROR,"请输入完整信息");
         }
 
         // 1. 检查用户名是否已存在
@@ -102,7 +96,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         queryWrapper.eq("username", user.getUsername());
         User ExistUser = this.getOne(queryWrapper);
         if(ExistUser!=null){
-            return ResultUtils.error("用户名已存在");
+            throw new CustomException(ErrorCode.USER_EXIST);
         }
 
         // 2. 设置用户信息
@@ -121,20 +115,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     public BaseResponse<LoginResponse> refreshToken(String refreshToken) {
         // 1. 验证刷新Token是否有效
         if (jwtUtil.isTokenExpired(refreshToken)) {
-            return ResultUtils.error("刷新Token已过期");
+            throw new CustomException(ErrorCode.REFRESH_TOKEN_HAS_EXPIRED);
         }
         
         // 2. 从Redis中获取用户ID
-        Long userId = (Long) redisTemplate.opsForValue().get("refreshToken:" + refreshToken);
+        Long userId = (Long) redisUtils.getRefreshToken(refreshToken);
         if (userId == null) {
-            return ResultUtils.error("刷新Token无效");
+            throw new CustomException(ErrorCode.REFRESH_TOKEN_IS_INVALID);
         }
         
         // 3. 获取用户信息
         User user = this.getById(userId);
         
         if (user == null) {
-            return ResultUtils.error("用户不存在");
+            throw new CustomException(ErrorCode.USER_NOT_EXIST);
         }
         
         // 4. 生成新的Token
@@ -142,25 +136,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         String newRefreshToken = jwtUtil.generateRefreshToken(user.getUsername(), user.getId());
         
         // 5. 删除旧的Token
-        redisTemplate.delete("refreshToken:" + refreshToken);
+        redisUtils.deleteRefreshToken(refreshToken);
         
         // 6. 将新Token存入Redis
-        redisTemplate.opsForValue().set("token:" + newToken, user.getId(), 24, TimeUnit.HOURS);
-        redisTemplate.opsForValue().set("refreshToken:" + newRefreshToken, user.getId(), 7, TimeUnit.DAYS);
+        redisUtils.setToken(newToken, user.getId());
+        redisUtils.setRefreshToken(newRefreshToken, user.getId());
         
         // 7. 构建响应
-        LoginResponse loginResponse = new LoginResponse();
-        loginResponse.setToken(newToken);
-        loginResponse.setRefreshToken(newRefreshToken);
-        loginResponse.setExpireTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000);
-        loginResponse.setUserId(user.getId());
-        loginResponse.setUsername(user.getUsername());
-        loginResponse.setNickName(user.getNickname());
-        
-        // 获取用户角色
-        List<String> roles = getUserRoles(user.getId()).getData();
-        loginResponse.setRoles(roles);
-        
+        LoginResponse loginResponse = encapsulateLoginResponse(user,newToken,newRefreshToken);
         return ResultUtils.ok("刷新Token成功", loginResponse);
     }
 
@@ -177,22 +160,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         User user = this.getById(id);
         
         if (user == null) {
-            return ResultUtils.error("用户不存在");
+            throw new CustomException(ErrorCode.USER_NOT_EXIST);
         }
         
         // 不返回密码
-        User result = new User();
-        result.setId(user.getId());
-        result.setUsername(user.getUsername());
-        result.setEmail(user.getEmail());
-        result.setPhone(user.getPhone());
-        result.setNickname(user.getNickname());
-        result.setStatus(user.getStatus());
-        result.setCreatedDate(user.getCreatedDate());
-        result.setUpdatedDate(user.getUpdatedDate());
-        result.setLastLoginTime(user.getLastLoginTime());
-        
-        return ResultUtils.ok(result);
+        return ResultUtils.ok(encapsulateAndDesensitizeUserInformation(user));
     }
 
     @Override
@@ -206,20 +178,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         if (user == null) {
             throw new CustomException(ErrorCode.USER_NOT_EXIST);
         }
-        
+
         // 不返回密码
-        User result = new User();
-        result.setId(user.getId());
-        result.setUsername(user.getUsername());
-        result.setEmail(user.getEmail());
-        result.setPhone(user.getPhone());
-        result.setNickname(user.getNickname());
-        result.setStatus(user.getStatus());
-        result.setCreatedDate(user.getCreatedDate());
-        result.setUpdatedDate(user.getUpdatedDate());
-        result.setLastLoginTime(user.getLastLoginTime());
-        
-        return ResultUtils.ok(result);
+        return ResultUtils.ok(encapsulateAndDesensitizeUserInformation(user));
     }
 
     @Override
@@ -240,7 +201,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         User user = this.getById(userId);
         
         if (user == null) {
-            return ResultUtils.error("用户不存在");
+            throw new CustomException(ErrorCode.USER_NOT_EXIST);
         }
         
         // 验证旧密码
@@ -262,5 +223,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
             return ResultUtils.error("恢复数据失败");
         }
         return ResultUtils.ok("恢复数据成功");
+    }
+
+    private User encapsulateAndDesensitizeUserInformation(User user){
+        User result = new User();
+        result.setId(user.getId());
+        result.setUsername(user.getUsername());
+        result.setEmail(user.getEmail());
+        result.setPhone(user.getPhone());
+        result.setNickname(user.getNickname());
+        result.setStatus(user.getStatus());
+        result.setCreatedDate(user.getCreatedDate());
+        result.setUpdatedDate(user.getUpdatedDate());
+        result.setLastLoginTime(user.getLastLoginTime());
+
+        return result;
+    }
+
+    private LoginResponse encapsulateLoginResponse(User user,String token,String refreshToken) {
+        LoginResponse loginResponse = new LoginResponse();
+        loginResponse.setToken(token);
+        loginResponse.setRefreshToken(refreshToken);
+        loginResponse.setExpireTime(System.currentTimeMillis() + 24 * 60 * 60 * 1000);
+        loginResponse.setUserId(user.getId());
+        loginResponse.setUsername(user.getUsername());
+        loginResponse.setNickName(user.getNickname());
+
+        // 获取用户角色
+        List<String> roles = getUserRoles(user.getId()).getData();
+        loginResponse.setRoles(roles);
+
+        return loginResponse;
     }
 } 

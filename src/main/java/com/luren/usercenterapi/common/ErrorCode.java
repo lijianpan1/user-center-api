@@ -16,7 +16,10 @@ public enum ErrorCode {
     TOKEN_ERROR(40102, "token验证失败", ""),
     USER_NOT_EXIST(40002, "用户不存在", ""),
     USER_EXIST(40103, "用户已存在", ""),
-    USER_PASSWORD_ERROR(40004, "用户名或密码错误", "");
+    USER_PASSWORD_ERROR(40004, "用户名或密码错误", ""),
+    ACCOUNT_HAS_BEEN_DISABLED(40005,"账号已被禁用",""),
+    REFRESH_TOKEN_HAS_EXPIRED(40006,"刷新令牌已过期",""),
+    REFRESH_TOKEN_IS_INVALID(40006,"刷新令牌无效","");
 
     /**
      * 错误码

@@ -7,10 +7,13 @@ scanPeriod：设置监测配置文件是否有修改的时间间隔，如果没�
 debug：当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。
 -->
 <configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <!-- ====================== 全局属性配置 ====================== -->
+    <springProperty scope="context" name="logging.path" source="logging.path" defaultValue="./logs/"/>
+
     <!-- logback项目名称 -->
     <property name="appName" value="logback-uauth"/>
     <!-- 定义日志文件的目录 -->
-    <property name="LOG_PATH" value="G:/WorkSpace/IntelliJ-IDEA-2024.1.4/Projects/user-center/user-center-api/logs"/>
+    <property name="LOG_PATH" value="${logging.path}"/>
     <!-- 全局日志级别 DEBUGER INFO WARN ERROR -->
     <property name="LOG_LEVEL" value="INFO"/>
     <!-- 定义日志最大保留天数 -->

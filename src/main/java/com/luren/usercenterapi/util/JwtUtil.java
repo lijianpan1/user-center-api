@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,7 @@ import java.util.Map;
  * JWT工具类
  */
 @Component
+@Data
 public class JwtUtil {
     
     @Value("${jwt.secret}")
@@ -38,6 +40,7 @@ public class JwtUtil {
                     .getBody();
         } catch (Exception e) {
             // 解析JWT失败
+            return null;
         }
         return claims;
     }
