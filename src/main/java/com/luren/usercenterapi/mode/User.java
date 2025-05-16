@@ -28,6 +28,7 @@ public class User {
     /**
      * 用户密码（加密存储）
      */
+    @TableField(select = false)
     private String password;
 
     /**
@@ -58,17 +59,18 @@ public class User {
     /**
      * 用户创建时间
      */
+    @TableField(fill = FieldFill.INSERT)
     private Date createdDate;
 
     /**
      * 用户信息更新时间
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updatedDate;
 
     /**
      * 是否删除（0：否，1：是）
      */
-    @TableLogic
     private Integer isDelete;
 
     /**

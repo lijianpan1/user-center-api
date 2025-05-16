@@ -1,6 +1,7 @@
 package com.luren.usercenterapi.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.luren.usercenterapi.common.BaseResponse;
 import com.luren.usercenterapi.common.ErrorCode;
@@ -49,7 +50,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         // 验证用户是否存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", loginRequest.getUsername());
-        queryWrapper.eq("is_delete", 0);
         User user = this.getOne(queryWrapper);
 
         if(user==null){
@@ -71,6 +71,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         
         // 4. 更新用户最后登录时间
         user.setLastLoginTime(new Date());
+        UpdateWrapper updateWrapper = new UpdateWrapper();
+        updateWrapper.set("last_login_time",new Date());
+        updateWrapper.eq("username", loginRequest.getUsername());
+        this.update(updateWrapper);
         
         // 5. 将Token存入Redis
         redisUtils.setToken(token, user.getId());
@@ -84,7 +88,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
     @Override
     public BaseResponse<User> register(User user) {
-        boolean result = StringUtils.isAllEmpty(user.getUsername(),user.getPassword(),user.getCheckPassword());
+        boolean result = StringUtils.isAnyEmpty(user.getUsername(),user.getPassword(),user.getCheckPassword());
 
         if(result){
             throw new CustomException(ErrorCode.PARAMS_ERROR,"请输入完整信息");
@@ -100,13 +104,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
         // 2. 设置用户信息
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setStatus(1);
-        
+        user.setStatus(0);
+
         // 3. 保存用户
         this.save(user);
         
-        // 4. 返回结果，不返回密码
+        // 4. 返回结果，脱敏
         user.setPassword(null);
+        user.setCheckPassword(null);
         return ResultUtils.ok("注册成功", user);
     }
 
@@ -171,7 +176,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         // 查找用户
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", username);
-        queryWrapper.eq("is_delete", 0);
         User user = this.getOne(queryWrapper);
         
         if (user == null) {

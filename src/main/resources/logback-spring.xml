@@ -11,7 +11,7 @@ debug：当此属性设置为true时，将打印出logback内部日志信息，�
     <springProperty scope="context" name="logging.path" source="logging.path" defaultValue="./logs/"/>
 
     <!-- logback项目名称 -->
-    <property name="appName" value="logback-uauth"/>
+    <property name="appName" value="logback-user-center"/>
     <!-- 定义日志文件的目录 -->
     <property name="LOG_PATH" value="${logging.path}"/>
     <!-- 全局日志级别 DEBUGER INFO WARN ERROR -->

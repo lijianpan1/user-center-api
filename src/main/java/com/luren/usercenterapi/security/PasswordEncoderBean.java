@@ -1,4 +1,4 @@
-package com.luren.usercenterapi.config;
+package com.luren.usercenterapi.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
