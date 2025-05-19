@@ -4,7 +4,7 @@ LABEL maintainer="1121728663@qq.com"
 
 EXPOSE 3306
 
-# COPY my.cnf /etc/mysql/conf.d
+ COPY my.cnf /etc/mysql/conf.d
 # COPY mysql.sql /docker-entrypoint-initdb.d
 
 RUN chmod -R ug+rw,o=r /etc/mysql/conf.d \
