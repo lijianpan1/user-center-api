@@ -31,8 +31,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         User user = userResult.getData();
         
         // 获取用户角色
-        BaseResponse<List<String>> rolesResult = userService.getUserRoles(user.getId());
-        List<String> roles = rolesResult.getData();
+        List<String> roles = userService.getUserRoles(user.getId());
         
         // 创建UserDetails对象
         return new JwtUserDetails(

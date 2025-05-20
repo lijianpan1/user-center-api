@@ -43,7 +43,7 @@ public class UserController {
     public BaseResponse<List<String>> getUserRoles(@RequestHeader("Authorization") String authorization) {
         String token = authorization.substring(7);
         int userId = jwtUtil.getUserIdFromToken(token);
-        return userService.getUserRoles(userId);
+        return ResultUtils.ok(userService.getUserRoles(userId));
     }
     
     /**

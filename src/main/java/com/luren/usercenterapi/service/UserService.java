@@ -63,7 +63,7 @@ public interface UserService extends IService<User> {
      * @param userId 用户ID
      * @return 角色代码列表
      */
-    BaseResponse<List<String>> getUserRoles(Integer userId);
+    List<String> getUserRoles(Integer userId);
 
     /**
      * 修改密码

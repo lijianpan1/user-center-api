@@ -20,9 +20,7 @@ public class MD5Utils {
      * @param str
      * @return 字符串密文
      */
-    public static String md5Salt(String str) {
-        // 生成一个 UUID (32位), 去除 -
-        String salt = UUID.randomUUID().toString().replace("-","");
+    public static String md5Salt(String str,String salt) {
         return DigestUtils.md5Hex(DigestUtils.md5Hex(str) + salt);
     }
 }

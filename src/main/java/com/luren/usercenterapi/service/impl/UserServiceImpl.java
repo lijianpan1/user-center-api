@@ -6,10 +6,16 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.luren.usercenterapi.common.BaseResponse;
 import com.luren.usercenterapi.common.ErrorCode;
 import com.luren.usercenterapi.exception.CustomException;
+import com.luren.usercenterapi.mapper.RoleMapper;
 import com.luren.usercenterapi.mapper.UserMapper;
+import com.luren.usercenterapi.mapper.UserRoleMapper;
+import com.luren.usercenterapi.mode.Role;
 import com.luren.usercenterapi.mode.User;
+import com.luren.usercenterapi.mode.UserRole;
 import com.luren.usercenterapi.mode.dto.LoginRequest;
 import com.luren.usercenterapi.mode.dto.LoginResponse;
+import com.luren.usercenterapi.service.RoleService;
+import com.luren.usercenterapi.service.UserRoleService;
 import com.luren.usercenterapi.service.UserService;
 import com.luren.usercenterapi.util.JwtUtil;
 import com.luren.usercenterapi.util.RedisUtils;
@@ -20,10 +26,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * 用户服务实现类
@@ -32,7 +39,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements UserService {
-
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -44,6 +50,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
 
     @Autowired
     private RedisUtils redisUtils;
+
+    @Autowired
+    private UserRoleService userRoleService;
+
+    @Autowired
+    private RoleService roleService;
 
     @Override
     public BaseResponse<LoginResponse> login(LoginRequest loginRequest) {
@@ -154,7 +166,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     @Override
     public BaseResponse<?> logout(String token) {
         // 1. 从Redis中删除Token
-        redisTemplate.delete("token:" + token);
+        redisUtils.deleteToken(token);
         return ResultUtils.ok("退出登录成功");
     }
 
@@ -187,15 +199,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
     }
 
     @Override
-    public BaseResponse<List<String>> getUserRoles(Integer userId) {
+    public List<String> getUserRoles(Integer userId) {
+
+        QueryWrapper<UserRole> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId);
         // 模拟获取用户角色
-        List<String> roles = new ArrayList<>();
-        if (userId == 1L) {
-            roles.add("ROLE_ADMIN");
-        } else {
-            roles.add("ROLE_USER");
+        List<UserRole> userRoles = userRoleService.list(queryWrapper);
+
+        //获取角色id并添加到集合中
+        List<String> roleIds = new ArrayList<>();
+        for (UserRole userRole : userRoles) {
+            roleIds.add(String.valueOf(userRole.getRoleId()));
         }
-        return ResultUtils.ok(roles);
+
+        List<Role> roles = !roleIds.isEmpty() ? roleService.listByIds(roleIds):new ArrayList<>();
+
+        return roles.stream().map(Role::getName).collect(Collectors.toList());
     }
 
     @Override
@@ -253,8 +272,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         loginResponse.setNickName(user.getNickname());
 
         // 获取用户角色
-        List<String> roles = getUserRoles(user.getId()).getData();
-        loginResponse.setRoles(roles);
+        loginResponse.setRoles(getUserRoles(user.getId()));
 
         return loginResponse;
     }
