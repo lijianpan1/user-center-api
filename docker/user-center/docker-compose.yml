@@ -1,4 +1,14 @@
 services:
+  java-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      ports:
+        - "8080:8080"
+    restart: unless-stopped
+    container_name: java-web
+    volumes:
+      - java-web-log:/app/logs
   mysql:
     build: 
       context: mysql/image
@@ -89,3 +99,9 @@ volumes:
       type: 'none'
       o: 'bind'
       device: '${PROJECT_PATH}/redis/logs'
+  java-web-log:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${PROJECT_PATH}/logs'

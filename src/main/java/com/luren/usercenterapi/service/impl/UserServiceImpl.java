@@ -109,8 +109,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         // 1. 检查用户名是否已存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("username", user.getUsername());
-        User ExistUser = this.getOne(queryWrapper);
-        if(ExistUser!=null){
+        User existUser = this.getOne(queryWrapper);
+        if(existUser!=null){
             throw new CustomException(ErrorCode.USER_EXIST);
         }
 
