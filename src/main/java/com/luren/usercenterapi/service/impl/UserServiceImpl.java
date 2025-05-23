@@ -73,7 +73,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper,User> implements Use
         }
         
         // 验证密码
-        if (passwordEncoder.matches(loginRequest.getPassword(),user.getPassword())) {
+        if (!passwordEncoder.matches(loginRequest.getPassword(),user.getPassword())) {
             throw new CustomException(ErrorCode.USER_PASSWORD_ERROR);
         }
         

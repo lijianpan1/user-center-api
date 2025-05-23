@@ -28,7 +28,6 @@ public class User {
     /**
      * 用户密码（加密存储）
      */
-    @TableField(select = false)
     private String password;
 
     /**
