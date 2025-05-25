@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+日志级别一般有8个级别，从低到高为All < Trace < Debug < Info < Warn < Error < Fatal < OFF
+
+scan：当此属性设置为true时，配置文件如果发生改变，将会被重新加载，默认值为true。
+scanPeriod：设置监测配置文件是否有修改的时间间隔，如果没有给出时间单位，默认单位是毫秒。当scan为true时，此属性生效。默认的时间间隔为1分钟。
+debug：当此属性设置为true时，将打印出logback内部日志信息，实时查看logback运行状态。默认值为false。
+-->
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <!-- ====================== 全局属性配置 ====================== -->
+    <springProperty scope="context" name="logging.path" source="logging.path" defaultValue="./logs/"/>
+
+    <!-- logback项目名称 -->
+    <property name="appName" value="logback-user-center"/>
+    <!-- 定义日志文件的目录 -->
+    <property name="LOG_PATH" value="${logging.path}"/>
+    <!-- 全局日志级别 DEBUGER INFO WARN ERROR -->
+    <property name="LOG_LEVEL" value="INFO"/>
+    <!-- 定义日志最大保留天数 -->
+    <property name="maxHistory" value="30"/>
+    <!-- 异步缓冲队列的深度,该值会影响性能.默认值为256 -->
+    <property name="queueSize" value="512"/>
+    <!-- 定义日志输出格式 -->
+    <property name="LOG_FILE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} : %msg%n"/>
+
+    <!-- 控制台输出 -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>${LOG_FILE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 文件输出 -->
+<!--    <appender name="FILE" class="ch.qos.logback.core.FileAppender">-->
+<!--        <file>${LOG_PATH}/${appName}.log</file>-->
+<!--        <append>true</append>-->
+<!--        <encoder>-->
+<!--            <pattern>${LOG_FILE_PATTERN}</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+    <!-- 滚动文件输出 -->
+    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${appName}.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${appName}_%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_FILE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+    <!-- 异步文件输出 -->
+    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 关联底层的滚动文件追加器 -->
+        <appender-ref ref="ROLLING_FILE" />
+<!--        <appender-ref ref="FILE" />-->
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>${queueSize}</queueSize>
+        <!-- 当队列元素数量达到 queueSize-discardingThreshold 时,丢弃低优先级的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 设置该属性 logback 会使用 ArrayBlockingQueue 的非阻塞方法 offer 代替 put, 防止在队列满时阻塞业务线程 -->
+        <neverBlock>true</neverBlock>
+    </appender>
+
+    <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook">
+        <!-- 延迟时间，单位毫秒 -->
+        <delay>10000</delay>
+    </shutdownHook>
+
+    <!-- 日志级别配置 -->
+    <root level="${LOG_LEVEL}">
+        <appender-ref ref="console" />
+<!--        <appender-ref ref="FILE" />-->
+        <appender-ref ref="ASYNC_FILE" />
+    </root>
+
+    <!-- 特定包的日志级别配置 -->
+    <logger name="com.lijianpan.uauth" level="debug" additivity="false">
+        <appender-ref ref="console" />
+<!--        <appender-ref ref="FILE" />-->
+        <appender-ref ref="ASYNC_FILE" />
+    </logger>
+</configuration>

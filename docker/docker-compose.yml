@@ -1,0 +1,107 @@
+services:
+  user-center-backend:
+    build:
+      context: user-center-backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    container_name: user-center-backend
+    volumes:
+      - user-center-backend-log:/app/logs
+  mysql:
+    build: 
+      context: mysql
+      dockerfile: Dockerfile
+    # image: uauth-mysql:latest
+    restart: unless-stopped
+    container_name: mysql8
+    deploy:
+      resources:
+        limits:
+          # 限制服务可使用的cpu资源，不超过x个核心（单个CPU核心处理能力的x*100%）
+          cpus: '0.40'
+          # 限制服务可使用的内存，不超过xM
+          memory: 400M
+    ports:
+      - "3306:3306"
+    # mysql root用户的密码
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    # 数据卷挂载到容器目录
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - mysql-conf:/etc/mysql/conf.d
+      - mysql-log:/var/log/mysql
+      - mysql-init:/docker-entrypoint-initdb.d
+  redis:
+    build: 
+      context: redis
+      dockerfile: Dockerfile
+    # image: uauth-redis:latest
+    restart: unless-stopped
+    container_name: redis7
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.40'
+          memory: 400M
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+      - redis-conf:/etc/redis
+      - redis-log:/logs
+
+# 定义数据卷
+volumes:
+  mysql-conf: 
+    # 驱动
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${PROJECT_PATH}/mysql/conf'
+  mysql-data: 
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${PROJECT_PATH}/mysql/data'
+  mysql-log: 
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${PROJECT_PATH}/mysql/logs'
+  mysql-init:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${PROJECT_PATH}/mysql/init'
+  redis-data: 
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${PROJECT_PATH}/redis/data'
+  redis-conf:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${PROJECT_PATH}/redis/conf'
+  redis-log:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${PROJECT_PATH}/redis/logs'
+  user-center-backend-log:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${PROJECT_PATH}/user-center-backend/logs'

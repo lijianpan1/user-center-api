@@ -15,8 +15,12 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import javax.servlet.http.Cookie;
+
 /**
  * Spring Security配置类
+ *
+ * @author lijianpan
  */
 @Configuration
 @EnableWebSecurity
@@ -59,14 +63,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 request.setAttribute("errorCode", ErrorCode.NOT_LOGIN_ERROR);
                 // 将请求转发到 /error 路径
                 request.getRequestDispatcher("/error").forward(request, response);
-
-//                response.setContentType("application/json;charset=UTF-8");
-//                response.getWriter().println(JSONUtil.toJsonStr(ResultUtils.error(ErrorCode.NOT_LOGIN_ERROR)));
             }))
-            .accessDeniedHandler((request, response, accessDeniedException) -> {
+            .accessDeniedHandler(((request, response, accessDeniedException) -> {
                 request.setAttribute("errorCode", ErrorCode.NO_AUTH_ERROR);
                 request.getRequestDispatcher("/error").forward(request, response);
-            });
+            }));
         
         // 添加JWT filter
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

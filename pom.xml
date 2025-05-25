@@ -120,8 +120,9 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-                    <mainClass>com.luren.usercenterapi.UserCenterApiApplication</mainClass>
+<!--                    跳过maven构建 -->
 <!--                    <skip>true</skip>-->
+                    <mainClass>com.luren.usercenterapi.UserCenterApiApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>
@@ -133,6 +134,21 @@
                 </executions>
             </plugin>
         </plugins>
+
+        <!-- 如果你想在构建过程中排除某些文件，你应该在Maven的<resources>部分中配置，而不是在Spring Boot Maven插件中。-->
+        <resources>
+            <resource>
+                <!--  排除的文件的路径 -->
+                <directory>src/main/resources</directory>
+                <excludes>
+                    <!--  排除的文件的名称 -->
+<!--                    <exclude>application.properties</exclude>-->
+                    <exclude>*.yml</exclude>
+<!--                    <exclude>application.yml</exclude>-->
+<!--                    <exclude>logback.xml</exclude>-->
+                </excludes>
+            </resource>
+        </resources>
     </build>
 
 </project>
