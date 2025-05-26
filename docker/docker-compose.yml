@@ -9,6 +9,7 @@ services:
     container_name: user-center-backend
     volumes:
       - user-center-backend-log:/app/logs
+      - user-center-backend-config:/app/config
   mysql:
     build: 
       context: mysql
@@ -105,3 +106,9 @@ volumes:
       type: 'none'
       o: 'bind'
       device: '${PROJECT_PATH}/user-center-backend/logs'
+  user-center-backend-config:
+    driver: local
+    driver_opts:
+      type: 'none'
+      o: 'bind'
+      device: '${PROJECT_PATH}/user-center-backend/config'
