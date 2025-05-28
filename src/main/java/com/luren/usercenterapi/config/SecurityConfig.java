@@ -54,6 +54,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .antMatchers("/static/**").permitAll()
             // 对登录注册和验证码接口要允许匿名访问
             .antMatchers("/auth/login", "/auth/register", "/auth/refresh-token").permitAll()
+            // knife4j
+            .antMatchers("/doc.html","/webjars/**","/favicon.ico","/swagger-resources","/v2/**").permitAll()
             // 除上面外的所有请求全部需要鉴权认证
             .anyRequest().authenticated()
                 .and()

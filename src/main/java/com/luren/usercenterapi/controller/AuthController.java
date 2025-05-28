@@ -6,12 +6,16 @@ import com.luren.usercenterapi.service.UserService;
 import com.luren.usercenterapi.mode.dto.LoginRequest;
 import com.luren.usercenterapi.mode.dto.LoginResponse;
 import com.luren.usercenterapi.util.ResultUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
  * 认证控制器
  */
+@Api(tags = "认证控制器")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -22,6 +26,7 @@ public class AuthController {
     /**
      * 用户登录
      */
+    @ApiOperation("用户登录")
     @PostMapping("/login")
     public BaseResponse<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         return userService.login(loginRequest);

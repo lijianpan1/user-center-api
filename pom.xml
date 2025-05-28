@@ -90,6 +90,12 @@
             <artifactId>commons-codec</artifactId>
             <version>1.15</version>
         </dependency>
+        <!-- knife4j -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
+            <version>4.4.0</version>
+        </dependency>
     </dependencies>
     <dependencyManagement>
         <dependencies>
@@ -120,9 +126,9 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
                 <configuration>
-<!--                    跳过maven构建 -->
-<!--                    <skip>true</skip>-->
                     <mainClass>com.luren.usercenterapi.UserCenterApiApplication</mainClass>
+                    <!-- 跳过maven构建 -->
+                    <skip>true</skip>
                 </configuration>
                 <executions>
                     <execution>
@@ -136,19 +142,16 @@
         </plugins>
 
         <!-- 如果你想在构建过程中排除某些文件，你应该在Maven的<resources>部分中配置，而不是在Spring Boot Maven插件中。-->
-        <resources>
-            <resource>
-                <!--  排除的文件的路径 -->
-                <directory>src/main/resources</directory>
-                <excludes>
-                    <!--  排除的文件的名称 -->
-<!--                    <exclude>application.properties</exclude>-->
-                    <exclude>*.yml</exclude>
-<!--                    <exclude>application.yml</exclude>-->
-<!--                    <exclude>logback.xml</exclude>-->
-                </excludes>
-            </resource>
-        </resources>
+<!--        <resources>-->
+<!--            <resource>-->
+<!--                &lt;!&ndash;  排除的文件的路径 &ndash;&gt;-->
+<!--                <directory>src/main/resources</directory>-->
+<!--                <excludes>-->
+<!--                    &lt;!&ndash;  排除的文件的名称 &ndash;&gt;-->
+<!--                    <exclude>*.yml</exclude>-->
+<!--                </excludes>-->
+<!--            </resource>-->
+<!--        </resources>-->
     </build>
 
 </project>

@@ -6,6 +6,8 @@ server:
     context-path: /api
 
 spring:
+  profiles:
+    active: dev
   # 数据源配置
   datasource:
     url: jdbc:mysql://113.45.22.27:3306/user_center?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
@@ -52,6 +54,19 @@ mybatis-plus:
 
 # JWT配置
 jwt:
-  secret: q0AlNkaOPqw0jdndvo3CEgR7SUDM3OQlR2XntCBcBcWQmdqJnsTms+u/H767C2kt # 密钥
+  secret:  # 密钥
   expiration: 86400 # 访问令牌过期时间（秒）
   refresh-expiration: 604800 # 刷新令牌过期时间（秒）
+
+#  knife4j配置
+knife4j:
+  enable: true
+  openapi:
+    title: Knife4j 接口文档
+    version: 1.0
+    group:
+      test1:
+        group-name: 默认分组
+        api-rule: package
+        api-rule-resources:
+          - com.luren.usercenterapi.controller
