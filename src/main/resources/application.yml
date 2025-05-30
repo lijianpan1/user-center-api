@@ -28,12 +28,6 @@ spring:
         max-idle: 5 # Lettuce连接池最大空闲连接数
         min-idle: 1 # Lettuce连接池最小空闲连接数
 
-mybatis:
-  mapper-locations: classpath:mapper/*.xml # Mapper XML文件位置
-  type-aliases-package: com.luren.usercenterapi.mode # 实体类包名
-  configuration:
-    map-underscore-to-camel-case: true # 驼峰命名法
-
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml # 指定 Mapper XML 文件的位置
   type-aliases-package: com.luren.usercenterapi.mode # 配置实体类别名包，可使用别名简化实体类引用
