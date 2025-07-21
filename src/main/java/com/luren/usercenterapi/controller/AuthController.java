@@ -1,5 +1,6 @@
 package com.luren.usercenterapi.controller;
 
+import com.luren.usercenterapi.annotation.AuthCheck;
 import com.luren.usercenterapi.common.BaseResponse;
 import com.luren.usercenterapi.mode.User;
 import com.luren.usercenterapi.service.UserService;
@@ -28,6 +29,7 @@ public class AuthController {
      */
     @ApiOperation("用户登录")
     @PostMapping("/login")
+    @AuthCheck( mustRole = "user")
     public BaseResponse<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         return userService.login(loginRequest);
     }
